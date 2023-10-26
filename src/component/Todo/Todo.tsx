@@ -1,43 +1,58 @@
 "use client";
 import React, { FC, useEffect, useState } from "react";
-import { Button, Select } from "antd";
-// import TableTodo from "../TableTodo/TableTodo";
+import TodoItem from "../TodoItem/TodoItem";
 import { v4 as uuidv4 } from "uuid";
+import { ToastContainer, toast } from "react-toastify";
+import HeaderTodo from "../HeaderTodo/HeaderTodo";
 
-interface TodoItem {
+export interface TodoItems {
   id: string;
   task: string;
   completed: boolean;
 }
 
 const Todo: FC = () => {
-  const [todo, setTodo] = useState<TodoItem[]>([]);
+  const [todo, setTodo] = useState<TodoItems[]>([]);
   const [newTodo, setNewTodo] = useState<string>("");
   const [edit, setEdit] = useState<boolean>(false);
-  const [getTodo, setGetTodo] = useState<null | {}>();
+  const [idEdit, setIdEdit] = useState<string | number>("");
 
   const addTodo = () => {
     if (newTodo !== "") {
       const newId = uuidv4();
-      const newTodoItem: TodoItem = {
+      const newTodoItem: TodoItems = {
         id: newId,
         task: newTodo,
         completed: false,
       };
       setTodo([...todo, newTodoItem]);
       setNewTodo("");
+      toast("Thêm todo thành công!");
+    } else {
+      toast.warning("Vui lòng nhập todo!");
     }
   };
 
   const editTodo = (id: string | number, item: string) => {
     setNewTodo(item);
-    // console.log(item);
-    console.log(newTodo);
+    setIdEdit(id);
     setEdit(true);
   };
 
   const updateTodo = () => {
-    const updatedTodos = todo.find((item) => {});
+    if (newTodo === "") {
+      return toast.warning("Không được để trống!");
+    }
+    if (idEdit) {
+      setTodo((prevTasks) => {
+        const updatedTodos: any = prevTasks.find((task) => task.id === idEdit);
+        updatedTodos.task = newTodo;
+        return [...prevTasks];
+      });
+    }
+    setNewTodo("");
+    setEdit(false);
+    toast.success("Sửa todo thành công!");
   };
 
   const doneTodo = (id: string | number) => {
@@ -53,84 +68,27 @@ const Todo: FC = () => {
   const deleteTodo = (id: string | number) => {
     const updatedTodos = todo.filter((todo) => todo.id !== id);
     setTodo(updatedTodos);
+    toast.info("Xóa todo thành công!");
+    setNewTodo("");
+    setEdit(false);
   };
 
   return (
     <div>
-      <div id="myDIV" className="header bg-slate-600 text-white">
-        <h2>My To Do List </h2>
-        <input
-          className="text-black"
-          type="text"
-          id="myInput"
-          placeholder="Add to do..."
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-        />
-        {edit === false ? (
-          <button className="addBtn" onClick={() => addTodo()}>
-            Add
-          </button>
-        ) : (
-          <button className="addBtn" onClick={() => updateTodo()}>
-            Update
-          </button>
-        )}
-        <Select
-          defaultValue="Filter"
-          className="mt-2"
-          style={{ width: 120 }}
-          options={[
-            { value: "all", label: "All" },
-            { value: "pending", label: "Pending" },
-            { value: "done", label: "Done" },
-          ]}
-        />
-      </div>
-      <ul
-        id="myUL "
-        className="w-[1280px] m-auto border border-gray-300 rounded-xl shadow-xl overflow-hidden"
-      >
-        {todo.map((item, index) => {
-          return (
-            <li
-              key={item.id}
-              className={
-                item.completed === true
-                  ? "flex justify-between checked"
-                  : "flex justify-between"
-              }
-            >
-              {item.task}
-              <div>
-                <Button
-                  className="bg-yellow-500 text-white"
-                  onClick={() => editTodo(item.id, item.task)}
-                >
-                  Edit
-                </Button>
-                <Button
-                  className="bg-blue-500 text-white mx-6"
-                  onClick={() => doneTodo(item.id)}
-                >
-                  Done
-                </Button>
-                <Button
-                  className="text-white bg-red-600"
-                  onClick={() => deleteTodo(item.id)}
-                >
-                  Delete
-                </Button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
-      {/* <TableTodo
-        todoList={todoList}
-        setTodoList={setTodoList}
-        setTodo={setTodo}
-      /> */}
+      <HeaderTodo
+        newTodo={newTodo}
+        setNewTodo={setNewTodo}
+        edit={edit}
+        addTodo={addTodo}
+        updateTodo={updateTodo}
+      />
+      <TodoItem
+        todo={todo}
+        editTodo={editTodo}
+        doneTodo={doneTodo}
+        deleteTodo={deleteTodo}
+      />
+      <ToastContainer autoClose={3000} />
     </div>
   );
 };
