@@ -1,6 +1,6 @@
 "use client";
-import { Button } from "antd";
-import React, { FC } from "react";
+import { Button, Pagination } from "antd";
+import React, { useEffect, useState } from "react";
 import { TodoItems } from "../Todo/Todo";
 
 interface Props {
@@ -12,12 +12,33 @@ interface Props {
 
 const TodoItem = (props: Props) => {
   const { todo, editTodo, doneTodo, deleteTodo } = props;
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(10);
+
+  useEffect(() => {
+    fetchData();
+  }, [page]);
+
+  const fetchData = async () => {
+    const response = await fetch(` `);
+    const result = await response.json();
+    // setCoinsData(result);
+    // setTotalPages(totalPages);
+  };
+
+  const handlePrevPage = (prevPage: number) => {
+    setPage((prevPage) => prevPage - 1);
+  };
+
+  const handleNextPage = (nextPage: number) => {
+    setPage((nextPage) => nextPage + 1);
+  };
 
   return (
-    <>
+    <div>
       <ul
         id="myUL "
-        className="w-[1280px] m-auto border border-gray-300 rounded-xl shadow-xl overflow-hidden"
+        className="listtodo w-[1280px] m-auto mt-6 border border-gray-300 rounded-xl shadow-xl overflow-hidden"
       >
         {todo.map((item, index) => {
           return (
@@ -54,7 +75,10 @@ const TodoItem = (props: Props) => {
           );
         })}
       </ul>
-    </>
+      <div className="my-14 text-right mr-12">
+        <Pagination defaultCurrent={1} total={20} />
+      </div>
+    </div>
   );
 };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, KeyboardEvent, useEffect, useRef, useState } from "react";
 import TodoItem from "../TodoItem/TodoItem";
 import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
@@ -16,20 +16,135 @@ const Todo: FC = () => {
   const [newTodo, setNewTodo] = useState<string>("");
   const [edit, setEdit] = useState<boolean>(false);
   const [idEdit, setIdEdit] = useState<string | number>("");
+  const inputRef: React.MutableRefObject<null> = useRef(null);
+
+  useEffect(() => {
+    const todoData = localStorage.getItem("todoList");
+    if (todoData) setTodo(JSON.parse(todoData));
+  }, []);
+
+  const saveTodo = (todo: TodoItems[]) => {
+    localStorage.setItem("todoList", JSON.stringify(todo));
+  };
+
+  // valid
+  const validTodo = (text: string | number) => {
+    return String(text)
+      .toLowerCase()
+      .match(/^[a-z A-Z 0-9]+$/);
+  };
 
   const addTodo = () => {
-    if (newTodo !== "") {
-      const newId = uuidv4();
-      const newTodoItem: TodoItems = {
-        id: newId,
-        task: newTodo,
-        completed: false,
-      };
-      setTodo([...todo, newTodoItem]);
-      setNewTodo("");
-      toast("Thêm todo thành công!");
-    } else {
+    const newId = uuidv4();
+    const newTodoItem: TodoItems = {
+      id: newId,
+      task: newTodo,
+      completed: false,
+    };
+
+    if (newTodo === "") {
       toast.warning("Vui lòng nhập todo!");
+      return;
+    }
+
+    // validate
+    const isValid = validTodo(newTodo);
+    if (!isValid) {
+      toast.error("Không nhập kí tự đặt biệt !!!");
+      return;
+    }
+
+    let check = true;
+    todo.map((item, index) => {
+      if (item.task.includes(newTodoItem.task)) {
+        check = false;
+        return;
+      }
+    });
+
+    if (newTodo !== "") {
+      if (check === true) {
+        setTodo([...todo, newTodoItem]);
+        setNewTodo("");
+        toast("Thêm todo thành công!");
+        saveTodo([...todo, newTodoItem]);
+      } else {
+        toast.error("Đã có task này !!!");
+        setNewTodo("");
+      }
+    }
+  };
+
+  const enter = (e: KeyboardEvent): void => {
+    const newId = uuidv4();
+    const newTodoItem: TodoItems = {
+      id: newId,
+      task: newTodo,
+      completed: false,
+    };
+
+    if (e.key === "Enter") {
+      if (edit === true) {
+        if (newTodo === "") {
+          toast.warning("Không được để trống!");
+          setEdit(false);
+          return;
+        }
+
+        const isValid = validTodo(newTodo);
+        if (!isValid) {
+          toast.error("Không nhập kí tự đặt biệt !!!");
+          setNewTodo("");
+          setEdit(false);
+          return;
+        }
+
+        if (idEdit) {
+          setTodo((prevTasks) => {
+            const updatedTodos: any = prevTasks.find(
+              (task) => task.id === idEdit
+            );
+            updatedTodos.task = newTodo;
+            return [...prevTasks];
+          });
+          setNewTodo("");
+          setEdit(false);
+          toast.success("Sửa todo thành công!");
+          saveTodo(todo);
+        }
+      } else {
+        if (newTodo === "") {
+          toast.warning("Không được để trống!");
+          return;
+        }
+
+        // validate
+        const isValid = validTodo(newTodo);
+        if (!isValid) {
+          toast.error("Không nhập kí tự đặt biệt !!!");
+          return;
+        }
+
+        let check = true;
+        todo.map((item, index) => {
+          if (item.task.includes(newTodoItem.task)) {
+            check = false;
+            return;
+          }
+        });
+
+        if (newTodo !== "") {
+          if (check === true) {
+            setTodo([...todo, newTodoItem]);
+            setNewTodo("");
+            toast("Thêm todo thành công!");
+            saveTodo([...todo, newTodoItem]);
+          } else {
+            toast.error("Đã có task này !!!");
+            setNewTodo("");
+          }
+        }
+      }
     }
   };
 
@@ -41,8 +156,16 @@ const Todo: FC = () => {
 
   const updateTodo = () => {
     if (newTodo === "") {
-      return toast.warning("Không được để trống!");
+      toast.warning("Không được để trống!");
+      return;
     }
+
+    const isValid = validTodo(newTodo);
+    if (!isValid) {
+      toast.error("Không nhập kí tự đặt biệt !!!");
+      return;
+    }
+
     if (idEdit) {
       setTodo((prevTasks) => {
         const updatedTodos: any = prevTasks.find((task) => task.id === idEdit);
@@ -50,9 +173,11 @@ const Todo: FC = () => {
         return [...prevTasks];
       });
     }
+
     setNewTodo("");
     setEdit(false);
     toast.success("Sửa todo thành công!");
+    saveTodo(todo);
   };
 
   const doneTodo = (id: string | number) => {
@@ -63,6 +188,7 @@ const Todo: FC = () => {
       return todo;
     });
     setTodo(updatedTodos);
+    saveTodo(updatedTodos);
   };
 
   const deleteTodo = (id: string | number) => {
@@ -71,6 +197,7 @@ const Todo: FC = () => {
     toast.info("Xóa todo thành công!");
     setNewTodo("");
     setEdit(false);
+    saveTodo(updatedTodos);
   };
 
   return (
@@ -81,6 +208,7 @@ const Todo: FC = () => {
         edit={edit}
         addTodo={addTodo}
         updateTodo={updateTodo}
+        enter={enter}
       />
       <TodoItem
         todo={todo}

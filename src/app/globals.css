@@ -16,7 +16,7 @@ body {
 }
 
 /* Style the list items */
-ul li {
+.listtodo li {
   cursor: pointer;
   position: relative;
   padding: 12px 8px 12px 40px;
