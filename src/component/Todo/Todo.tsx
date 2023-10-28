@@ -16,7 +16,7 @@ const Todo: FC = () => {
   const [newTodo, setNewTodo] = useState<string>("");
   const [edit, setEdit] = useState<boolean>(false);
   const [idEdit, setIdEdit] = useState<string | number>("");
-  const inputRef: React.MutableRefObject<null> = useRef(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     const todoData = localStorage.getItem("todoList");
@@ -68,6 +68,9 @@ const Todo: FC = () => {
         setNewTodo("");
         toast("Thêm todo thành công!");
         saveTodo([...todo, newTodoItem]);
+        if (inputRef.current) {
+          inputRef.current.focus();
+        }
       } else {
         toast.error("Đã có task này !!!");
         setNewTodo("");
@@ -209,6 +212,7 @@ const Todo: FC = () => {
         addTodo={addTodo}
         updateTodo={updateTodo}
         enter={enter}
+        inputRef={inputRef}
       />
       <TodoItem
         todo={todo}

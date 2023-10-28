@@ -12,27 +12,8 @@ interface Props {
 
 const TodoItem = (props: Props) => {
   const { todo, editTodo, doneTodo, deleteTodo } = props;
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(10);
-
-  useEffect(() => {
-    fetchData();
-  }, [page]);
-
-  const fetchData = async () => {
-    const response = await fetch(` `);
-    const result = await response.json();
-    // setCoinsData(result);
-    // setTotalPages(totalPages);
-  };
-
-  const handlePrevPage = (prevPage: number) => {
-    setPage((prevPage) => prevPage - 1);
-  };
-
-  const handleNextPage = (nextPage: number) => {
-    setPage((nextPage) => nextPage + 1);
-  };
+  const [page, setPage] = useState(2);
+  const [totalPages, setTotalPages] = useState(30);
 
   return (
     <div>
@@ -74,9 +55,11 @@ const TodoItem = (props: Props) => {
             </li>
           );
         })}
+
+        {todo.length === 0 && <li>Không có task !!!</li>}
       </ul>
       <div className="my-14 text-right mr-12">
-        <Pagination defaultCurrent={1} total={20} />
+        {/* <Pagination defaultCurrent={page} total={totalPages} /> */}
       </div>
     </div>
   );

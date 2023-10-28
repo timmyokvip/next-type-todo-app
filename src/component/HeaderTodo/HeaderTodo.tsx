@@ -1,8 +1,8 @@
 "use client";
-import { Button, Select } from "antd";
+// import { Select } from "antd";
 import React, { useState, KeyboardEvent } from "react";
 import { Switch } from "antd";
-import { SizeType } from "antd/es/config-provider/SizeContext";
+
 import Link from "next/link";
 
 interface Props {
@@ -12,18 +12,18 @@ interface Props {
   addTodo: () => void;
   updateTodo: () => void;
   enter: (e: KeyboardEvent) => void;
+  inputRef: HTMLInputElement | null | any;
 }
 
 const HeaderTodo = (props: Props) => {
-  const { newTodo, setNewTodo, edit, addTodo, updateTodo, enter } = props;
+  const { newTodo, setNewTodo, edit, addTodo, updateTodo, enter, inputRef } =
+    props;
   const [isTheme, setIsTheme] = useState<boolean>(true);
 
   const onChange = (checked: boolean) => {
-    console.log(`switch to ${checked}`);
+    // console.log(`switch to ${checked}`);
     setIsTheme(!isTheme);
   };
-
-  const [size, setSize] = useState<SizeType>("large");
 
   return (
     <div
@@ -58,6 +58,7 @@ const HeaderTodo = (props: Props) => {
           value={newTodo}
           onChange={(e) => setNewTodo(e.target.value)}
           onKeyUp={enter}
+          ref={inputRef}
         />
         {edit === false ? (
           <button className="addBtn" onClick={() => addTodo()}>
@@ -72,7 +73,7 @@ const HeaderTodo = (props: Props) => {
           </button>
         )}
       </div>
-      <Select
+      {/* <Select
         defaultValue="Filter"
         className="mb-2 ml-12 text-left"
         style={{ width: 240 }}
@@ -81,7 +82,7 @@ const HeaderTodo = (props: Props) => {
           { value: "pending", label: "Pending" },
           { value: "done", label: "Done" },
         ]}
-      />
+      /> */}
     </div>
   );
 };
