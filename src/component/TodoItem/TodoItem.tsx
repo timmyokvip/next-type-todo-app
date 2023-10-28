@@ -1,6 +1,6 @@
 "use client";
 import { Button, Pagination } from "antd";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { TodoItems } from "../Todo/Todo";
 
 interface Props {
@@ -9,12 +9,10 @@ interface Props {
   doneTodo: (id: string | number) => void;
   deleteTodo: (id: string | number) => void;
   filterTask: TodoItems[];
-  arrayFilter: TodoItems[];
 }
 
 const TodoItem = (props: Props) => {
-  const { todo, editTodo, doneTodo, deleteTodo, filterTask, arrayFilter } =
-    props;
+  const { todo, editTodo, doneTodo, deleteTodo, filterTask } = props;
   const [page, setPage] = useState(2);
   const [totalPages, setTotalPages] = useState(30);
 

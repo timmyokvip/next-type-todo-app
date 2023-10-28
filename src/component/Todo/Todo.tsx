@@ -21,7 +21,6 @@ const Todo: FC = () => {
   // const [filterTask, setFilterTask] = useState(todo);
   const [filterTask, setFilterTask] = useState<TodoItems[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [arrayFilter, setArrayFilter] = useState<TodoItems[]>([]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -49,15 +48,17 @@ const Todo: FC = () => {
   };
 
   // filter todo
-  const handleChange = (value: { value: string; label: React.ReactNode }) => {
-    console.log(value.value); // { value: "lucy", key: "lucy", label: "Lucy (101)" }
+  const handleFilterTodo = (value: {
+    value: string;
+    label: React.ReactNode;
+  }) => {
+    // { value: "lucy", key: "lucy", label: "Lucy (101)" }
 
     if (value.value === "all") {
       setFilterTask(todo);
     } else if (value.value === "done") {
       let taskDone = todo.filter((task) => task.completed === true);
       setFilterTask(taskDone);
-      console.log(arrayFilter);
     } else {
       let taskPending = todo.filter((task) => task.completed === false);
       setFilterTask(taskPending);
@@ -285,7 +286,7 @@ const Todo: FC = () => {
             inputRef={inputRef}
             searchItem={searchItem}
             handleInputChange={handleInputChange}
-            handleChange={handleChange}
+            handleFilterTodo={handleFilterTodo}
           />
           <TodoItem
             todo={todo}
@@ -293,7 +294,6 @@ const Todo: FC = () => {
             doneTodo={doneTodo}
             deleteTodo={deleteTodo}
             filterTask={filterTask}
-            arrayFilter={arrayFilter}
           />
           <ToastContainer autoClose={3000} />
         </div>
