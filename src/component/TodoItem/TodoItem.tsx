@@ -9,10 +9,12 @@ interface Props {
   doneTodo: (id: string | number) => void;
   deleteTodo: (id: string | number) => void;
   filterTask: TodoItems[];
+  arrayFilter: TodoItems[];
 }
 
 const TodoItem = (props: Props) => {
-  const { todo, editTodo, doneTodo, deleteTodo, filterTask } = props;
+  const { todo, editTodo, doneTodo, deleteTodo, filterTask, arrayFilter } =
+    props;
   const [page, setPage] = useState(2);
   const [totalPages, setTotalPages] = useState(30);
 

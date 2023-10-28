@@ -4,6 +4,7 @@ import TodoItem from "../TodoItem/TodoItem";
 import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import HeaderTodo from "../HeaderTodo/HeaderTodo";
+import { Spin } from "antd";
 
 export interface TodoItems {
   id: string;
@@ -17,10 +18,20 @@ const Todo: FC = () => {
   const [edit, setEdit] = useState<boolean>(false);
   const [idEdit, setIdEdit] = useState<string | number>("");
   const [searchItem, setSearchItem] = useState("");
-  const [filterTask, setFilterTask] = useState(todo);
+  // const [filterTask, setFilterTask] = useState(todo);
+  const [filterTask, setFilterTask] = useState<TodoItems[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [arrayFilter, setArrayFilter] = useState<TodoItems[]>([]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // search todo
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTask = e.target.value;
     if (searchTask === "") {
@@ -33,9 +44,27 @@ const Todo: FC = () => {
     const filterTodo = todo.filter((item) =>
       item.task.toLowerCase().includes(searchTask.toLowerCase())
     );
+
     setFilterTask(filterTodo);
   };
 
+  // filter todo
+  const handleChange = (value: { value: string; label: React.ReactNode }) => {
+    console.log(value.value); // { value: "lucy", key: "lucy", label: "Lucy (101)" }
+
+    if (value.value === "all") {
+      setFilterTask(todo);
+    } else if (value.value === "done") {
+      let taskDone = todo.filter((task) => task.completed === true);
+      setFilterTask(taskDone);
+      console.log(arrayFilter);
+    } else {
+      let taskPending = todo.filter((task) => task.completed === false);
+      setFilterTask(taskPending);
+    }
+  };
+
+  // save todo in localStorage
   useEffect(() => {
     const todoData = localStorage.getItem("todoList");
     if (todoData) setTodo(JSON.parse(todoData));
@@ -154,7 +183,7 @@ const Todo: FC = () => {
 
         let check = true;
         todo.map((item, index) => {
-          if (item.task.includes(newTodoItem.task)) {
+          if (item.task === newTodoItem.task) {
             check = false;
             return;
           }
@@ -236,29 +265,40 @@ const Todo: FC = () => {
     setFilterTask([]);
     saveTodo(updatedTodos);
   };
-
   return (
-    <div>
-      <HeaderTodo
-        newTodo={newTodo}
-        setNewTodo={setNewTodo}
-        edit={edit}
-        addTodo={addTodo}
-        updateTodo={updateTodo}
-        enter={enter}
-        inputRef={inputRef}
-        searchItem={searchItem}
-        handleInputChange={handleInputChange}
-      />
-      <TodoItem
-        todo={todo}
-        editTodo={editTodo}
-        doneTodo={doneTodo}
-        deleteTodo={deleteTodo}
-        filterTask={filterTask}
-      />
-      <ToastContainer autoClose={3000} />
-    </div>
+    <>
+      {loading ? (
+        <div className="translate-x-[-50%] translate-y-[-50%] absolute top-[50%] left-[50%]">
+          <Spin size="large" />
+        </div>
+      ) : (
+        <div>
+          <HeaderTodo
+            setTodo={setTodo}
+            todo={todo}
+            newTodo={newTodo}
+            setNewTodo={setNewTodo}
+            edit={edit}
+            addTodo={addTodo}
+            updateTodo={updateTodo}
+            enter={enter}
+            inputRef={inputRef}
+            searchItem={searchItem}
+            handleInputChange={handleInputChange}
+            handleChange={handleChange}
+          />
+          <TodoItem
+            todo={todo}
+            editTodo={editTodo}
+            doneTodo={doneTodo}
+            deleteTodo={deleteTodo}
+            filterTask={filterTask}
+            arrayFilter={arrayFilter}
+          />
+          <ToastContainer autoClose={3000} />
+        </div>
+      )}
+    </>
   );
 };
 
