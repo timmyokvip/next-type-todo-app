@@ -1,8 +1,7 @@
 "use client";
-// import { Select } from "antd";
+import { Select } from "antd";
 import React, { useState, KeyboardEvent } from "react";
 import { Switch } from "antd";
-
 import Link from "next/link";
 
 interface Props {
@@ -13,11 +12,22 @@ interface Props {
   updateTodo: () => void;
   enter: (e: KeyboardEvent) => void;
   inputRef: HTMLInputElement | null | any;
+  searchItem: string;
+  handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const HeaderTodo = (props: Props) => {
-  const { newTodo, setNewTodo, edit, addTodo, updateTodo, enter, inputRef } =
-    props;
+  const {
+    newTodo,
+    setNewTodo,
+    addTodo,
+    enter,
+    edit,
+    updateTodo,
+    inputRef,
+    searchItem,
+    handleInputChange,
+  } = props;
   const [isTheme, setIsTheme] = useState<boolean>(true);
 
   const onChange = (checked: boolean) => {
@@ -73,16 +83,25 @@ const HeaderTodo = (props: Props) => {
           </button>
         )}
       </div>
-      {/* <Select
-        defaultValue="Filter"
-        className="mb-2 ml-12 text-left"
-        style={{ width: 240 }}
-        options={[
-          { value: "all", label: "All" },
-          { value: "pending", label: "Pending" },
-          { value: "done", label: "Done" },
-        ]}
-      /> */}
+      <div className="p-12 ">
+        <Select
+          defaultValue="Filter"
+          className="mb-2 ml-12 text-left"
+          style={{ width: 240 }}
+          options={[
+            { value: "all", label: "All" },
+            { value: "pending", label: "Pending" },
+            { value: "done", label: "Done" },
+          ]}
+        />
+        <input
+          type="text"
+          placeholder="Search Todo..."
+          className="text-black"
+          value={searchItem}
+          onChange={(e) => handleInputChange(e)}
+        />
+      </div>
     </div>
   );
 };

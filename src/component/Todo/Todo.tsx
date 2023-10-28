@@ -16,7 +16,25 @@ const Todo: FC = () => {
   const [newTodo, setNewTodo] = useState<string>("");
   const [edit, setEdit] = useState<boolean>(false);
   const [idEdit, setIdEdit] = useState<string | number>("");
+  const [searchItem, setSearchItem] = useState("");
+  const [filterTask, setFilterTask] = useState(todo);
+
   const inputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const searchTask = e.target.value;
+    if (searchTask === "") {
+      setSearchItem("");
+      setFilterTask([]);
+      return;
+    }
+    setSearchItem(searchTask);
+
+    const filterTodo = todo.filter((item) =>
+      item.task.toLowerCase().includes(searchTask.toLowerCase())
+    );
+    setFilterTask(filterTodo);
+  };
 
   useEffect(() => {
     const todoData = localStorage.getItem("todoList");
@@ -56,7 +74,7 @@ const Todo: FC = () => {
 
     let check = true;
     todo.map((item, index) => {
-      if (item.task.includes(newTodoItem.task)) {
+      if (item.task === newTodoItem.task) {
         check = false;
         return;
       }
@@ -66,6 +84,8 @@ const Todo: FC = () => {
       if (check === true) {
         setTodo([...todo, newTodoItem]);
         setNewTodo("");
+        setSearchItem("");
+        setFilterTask([]);
         toast("Thêm todo thành công!");
         saveTodo([...todo, newTodoItem]);
         if (inputRef.current) {
@@ -74,6 +94,8 @@ const Todo: FC = () => {
       } else {
         toast.error("Đã có task này !!!");
         setNewTodo("");
+        setSearchItem("");
+        setFilterTask([]);
       }
     }
   };
@@ -113,6 +135,8 @@ const Todo: FC = () => {
           setNewTodo("");
           setEdit(false);
           toast.success("Sửa todo thành công!");
+          setSearchItem("");
+          setFilterTask([]);
           saveTodo(todo);
         }
       } else {
@@ -140,11 +164,15 @@ const Todo: FC = () => {
           if (check === true) {
             setTodo([...todo, newTodoItem]);
             setNewTodo("");
+            setSearchItem("");
+            setFilterTask([]);
             toast("Thêm todo thành công!");
             saveTodo([...todo, newTodoItem]);
           } else {
             toast.error("Đã có task này !!!");
             setNewTodo("");
+            setSearchItem("");
+            setFilterTask([]);
           }
         }
       }
@@ -180,6 +208,8 @@ const Todo: FC = () => {
     setNewTodo("");
     setEdit(false);
     toast.success("Sửa todo thành công!");
+    setSearchItem("");
+    setFilterTask([]);
     saveTodo(todo);
   };
 
@@ -192,6 +222,8 @@ const Todo: FC = () => {
     });
     setTodo(updatedTodos);
     saveTodo(updatedTodos);
+    setSearchItem("");
+    setFilterTask([]);
   };
 
   const deleteTodo = (id: string | number) => {
@@ -200,6 +232,8 @@ const Todo: FC = () => {
     toast.info("Xóa todo thành công!");
     setNewTodo("");
     setEdit(false);
+    setSearchItem("");
+    setFilterTask([]);
     saveTodo(updatedTodos);
   };
 
@@ -213,12 +247,15 @@ const Todo: FC = () => {
         updateTodo={updateTodo}
         enter={enter}
         inputRef={inputRef}
+        searchItem={searchItem}
+        handleInputChange={handleInputChange}
       />
       <TodoItem
         todo={todo}
         editTodo={editTodo}
         doneTodo={doneTodo}
         deleteTodo={deleteTodo}
+        filterTask={filterTask}
       />
       <ToastContainer autoClose={3000} />
     </div>
