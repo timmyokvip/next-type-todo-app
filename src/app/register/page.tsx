@@ -69,7 +69,7 @@ const RegisterPage = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("get user", user);
+    console.log("get user đăng ký", user);
     if (validateForm()) {
       toast.success("Đăng ký thành công!");
     } else {

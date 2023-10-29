@@ -9,12 +9,30 @@ interface Props {
   doneTodo: (id: string | number) => void;
   deleteTodo: (id: string | number) => void;
   filterTask: TodoItems[];
+  currentPage: number;
+  postsPerPage: number;
+  paginate: (pageNumber: number) => void;
+  total: number;
 }
 
 const TodoItem = (props: Props) => {
-  const { todo, editTodo, doneTodo, deleteTodo, filterTask } = props;
-  const [page, setPage] = useState(2);
-  const [totalPages, setTotalPages] = useState(30);
+  const {
+    todo,
+    editTodo,
+    doneTodo,
+    deleteTodo,
+    filterTask,
+    currentPage,
+    postsPerPage,
+    paginate,
+    total,
+  } = props;
+
+  // Get current posts
+  const indexOfLastPost = currentPage * postsPerPage;
+  const indexOfFirstPost = indexOfLastPost - postsPerPage;
+  const currentPosts = todo.slice(indexOfFirstPost, indexOfLastPost);
+  const currentFilter = filterTask.slice(indexOfFirstPost, indexOfLastPost);
 
   return (
     <div>
@@ -22,8 +40,8 @@ const TodoItem = (props: Props) => {
         id="myUL "
         className="listtodo w-[1280px] m-auto mt-6 border border-gray-300 rounded-xl shadow-xl overflow-hidden"
       >
-        {filterTask && filterTask.length > 0
-          ? filterTask.map((item, index) => {
+        {currentFilter && currentFilter.length > 0
+          ? currentFilter.map((item, index) => {
               return (
                 <li
                   key={item.id}
@@ -57,7 +75,7 @@ const TodoItem = (props: Props) => {
                 </li>
               );
             })
-          : todo.map((item, index) => {
+          : currentPosts.map((item, index) => {
               return (
                 <li
                   key={item.id}
@@ -95,7 +113,13 @@ const TodoItem = (props: Props) => {
         {todo.length === 0 && <li>Không có task !!!</li>}
       </ul>
       <div className="my-14 text-right mr-12">
-        {/* <Pagination defaultCurrent={page} total={totalPages} /> */}
+        <Pagination
+          defaultCurrent={1}
+          current={currentPage}
+          total={total ? total : todo.length}
+          onChange={(pageNumber) => paginate(pageNumber)}
+          defaultPageSize={postsPerPage} // 1 trang có bao nhiêu todo
+        />
       </div>
     </div>
   );

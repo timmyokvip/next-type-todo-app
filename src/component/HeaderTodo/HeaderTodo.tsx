@@ -16,7 +16,8 @@ interface Props {
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setTodo: React.Dispatch<React.SetStateAction<TodoItems[]>>;
   todo: TodoItems[];
-  handleFilterTodo: (value: { value: string; label: React.ReactNode }) => void;
+  handleFilterTodo: (value: string) => void;
+  defaultValue: string;
 }
 
 const HeaderTodo = (props: Props) => {
@@ -30,8 +31,8 @@ const HeaderTodo = (props: Props) => {
     inputRef,
     searchItem,
     handleInputChange,
-
     handleFilterTodo,
+    defaultValue,
   } = props;
   const [isTheme, setIsTheme] = useState<boolean>(true);
 
@@ -104,8 +105,7 @@ const HeaderTodo = (props: Props) => {
           <Select
             className="w-full"
             size="large"
-            labelInValue
-            defaultValue={{ value: "all", label: "All" }}
+            defaultValue={defaultValue}
             onChange={(value) => handleFilterTodo(value)}
             options={[
               {

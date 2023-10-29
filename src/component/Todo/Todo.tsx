@@ -18,9 +18,12 @@ const Todo: FC = () => {
   const [edit, setEdit] = useState<boolean>(false);
   const [idEdit, setIdEdit] = useState<string | number>("");
   const [searchItem, setSearchItem] = useState("");
-  // const [filterTask, setFilterTask] = useState(todo);
   const [filterTask, setFilterTask] = useState<TodoItems[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [currentPage, setCurrentPage] = useState<number>(1); // current page
+  const [postsPerPage, setPostsPerPage] = useState<number>(5); // 1 trang có bao nhiêu todo
+  const [total, setTotal] = useState<number>(0);
+  const [defaultValue, setDefault] = useState("all");
 
   useEffect(() => {
     setTimeout(() => {
@@ -33,35 +36,40 @@ const Todo: FC = () => {
   // search todo
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const searchTask = e.target.value;
+    setSearchItem(searchTask);
     if (searchTask === "") {
       setSearchItem("");
       setFilterTask([]);
+      setTotal(0);
       return;
     }
-    setSearchItem(searchTask);
 
     const filterTodo = todo.filter((item) =>
       item.task.toLowerCase().includes(searchTask.toLowerCase())
     );
 
     setFilterTask(filterTodo);
+    setTotal(filterTodo.length);
   };
 
   // filter todo
-  const handleFilterTodo = (value: {
-    value: string;
-    label: React.ReactNode;
-  }) => {
+  const handleFilterTodo = (value: string) => {
     // { value: "lucy", key: "lucy", label: "Lucy (101)" }
 
-    if (value.value === "all") {
+    if (value === "all") {
       setFilterTask(todo);
-    } else if (value.value === "done") {
+      setTotal(todo.length);
+      setCurrentPage(1);
+    } else if (value === "done") {
       let taskDone = todo.filter((task) => task.completed === true);
       setFilterTask(taskDone);
+      setTotal(taskDone.length);
+      setCurrentPage(1);
     } else {
       let taskPending = todo.filter((task) => task.completed === false);
       setFilterTask(taskPending);
+      setTotal(taskPending.length);
+      setCurrentPage(1);
     }
   };
 
@@ -118,6 +126,8 @@ const Todo: FC = () => {
         setFilterTask([]);
         toast("Thêm todo thành công!");
         saveTodo([...todo, newTodoItem]);
+        setTotal(0);
+        setCurrentPage(1);
         if (inputRef.current) {
           inputRef.current.focus();
         }
@@ -126,6 +136,8 @@ const Todo: FC = () => {
         setNewTodo("");
         setSearchItem("");
         setFilterTask([]);
+        setTotal(0);
+        setCurrentPage(1);
       }
     }
   };
@@ -266,6 +278,11 @@ const Todo: FC = () => {
     setFilterTask([]);
     saveTodo(updatedTodos);
   };
+
+  const paginate = (pageNumber: number) => {
+    setCurrentPage(pageNumber);
+  };
+
   return (
     <>
       {loading ? (
@@ -287,6 +304,7 @@ const Todo: FC = () => {
             searchItem={searchItem}
             handleInputChange={handleInputChange}
             handleFilterTodo={handleFilterTodo}
+            defaultValue={defaultValue}
           />
           <TodoItem
             todo={todo}
@@ -294,6 +312,10 @@ const Todo: FC = () => {
             doneTodo={doneTodo}
             deleteTodo={deleteTodo}
             filterTask={filterTask}
+            currentPage={currentPage}
+            postsPerPage={postsPerPage}
+            paginate={paginate}
+            total={total}
           />
           <ToastContainer autoClose={3000} />
         </div>
