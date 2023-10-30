@@ -1,11 +1,8 @@
+import { TodoItems } from "@/component/Todo/Todo";
 import axios from "@/utils/axiosCustomize";
 
-const postLogin = (userEmail: string, userPassword: string | number) => {
-  return axios.post(`/api/v1/login`, {
-    email: userEmail,
-    password: userPassword,
-    delay: 3000,
-  });
+const getAllTodos = () => {
+  return axios.get<TodoItems[]>(`/todos/`);
 };
 
-export { postLogin };
+export { getAllTodos };

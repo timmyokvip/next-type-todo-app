@@ -1,5 +1,5 @@
 "use client";
-import { Button, Pagination } from "antd";
+import { Button, Pagination, PaginationProps } from "antd";
 import React, { useState } from "react";
 import { TodoItems } from "../Todo/Todo";
 
@@ -10,7 +10,6 @@ interface Props {
   deleteTodo: (id: string | number) => void;
   filterTask: TodoItems[];
   currentPage: number;
-  postsPerPage: number;
   paginate: (pageNumber: number) => void;
   total: number;
 }
@@ -23,17 +22,21 @@ const TodoItem = (props: Props) => {
     deleteTodo,
     filterTask,
     currentPage,
-    postsPerPage,
     paginate,
     total,
   } = props;
-
+  const [postsPerPage, setPostsPerPage] = useState<number>(10); // 1 trang có bao nhiêu todo
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = todo.slice(indexOfFirstPost, indexOfLastPost);
   const currentFilter = filterTask.slice(indexOfFirstPost, indexOfLastPost);
-
+  const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
+    current,
+    pageSize
+  ) => {
+    setPostsPerPage(pageSize);
+  };
   return (
     <div>
       <ul
@@ -51,11 +54,11 @@ const TodoItem = (props: Props) => {
                       : "flex justify-between"
                   }
                 >
-                  {item.task}
+                  {item.title}
                   <div>
                     <Button
                       className="bg-yellow-500 text-white"
-                      onClick={() => editTodo(item.id, item.task)}
+                      onClick={() => editTodo(item.id, item.title)}
                     >
                       Edit
                     </Button>
@@ -85,11 +88,11 @@ const TodoItem = (props: Props) => {
                       : "flex justify-between"
                   }
                 >
-                  {item.task}
+                  {item.title}
                   <div>
                     <Button
                       className="bg-yellow-500 text-white"
-                      onClick={() => editTodo(item.id, item.task)}
+                      onClick={() => editTodo(item.id, item.title)}
                     >
                       Edit
                     </Button>
@@ -119,6 +122,7 @@ const TodoItem = (props: Props) => {
           total={total ? total : todo.length}
           onChange={(pageNumber) => paginate(pageNumber)}
           defaultPageSize={postsPerPage} // 1 trang có bao nhiêu todo
+          onShowSizeChange={onShowSizeChange}
         />
       </div>
     </div>

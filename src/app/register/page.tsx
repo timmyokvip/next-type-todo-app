@@ -72,11 +72,11 @@ const RegisterPage = () => {
     console.log("get user đăng ký", user);
     if (validateForm()) {
       toast.success("Đăng ký thành công!");
+      // return router.push("/login");
     } else {
       toast.error("Đăng ký thất bại !!!");
       return;
     }
-    // router.push("/login");
   };
 
   return (

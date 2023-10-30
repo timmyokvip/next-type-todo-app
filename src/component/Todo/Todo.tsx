@@ -5,12 +5,19 @@ import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import HeaderTodo from "../HeaderTodo/HeaderTodo";
 import { Spin } from "antd";
+import { getAllTodos } from "@/services/apiService";
+import useSWR from "swr";
 
 export interface TodoItems {
-  id: string;
-  task: string;
+  // id: string;
+  // task: string;
   completed: boolean;
+  id: number | string;
+  title: string;
+  userId: number | string;
 }
+
+interface AxiosResponse {}
 
 const Todo: FC = () => {
   const [todo, setTodo] = useState<TodoItems[]>([]);
@@ -21,9 +28,36 @@ const Todo: FC = () => {
   const [filterTask, setFilterTask] = useState<TodoItems[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1); // current page
-  const [postsPerPage, setPostsPerPage] = useState<number>(5); // 1 trang có bao nhiêu todo
   const [total, setTotal] = useState<number>(0);
-  const [defaultValue, setDefault] = useState("all");
+
+  const fetchTodos = async (url: string) => {
+    // return await fetch(url).then((res) => res.json());
+    const res: any = await getAllTodos();
+  };
+
+  const { data, error, isLoading } = useSWR(
+    "https://jsonplaceholder.typicode.com/todos/",
+    fetchTodos,
+    {
+      revalidateIfStale: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+    }
+  );
+
+  console.log("check data", todo);
+
+  useEffect(() => {
+    setTodo(data);
+    // fetchTodos();
+  }, []);
+
+  // const fetchTodos = async () => {
+  //   const res: any = await getAllTodos();
+  //   if (res) {
+  //     setTodo(res);
+  //   }
+  // };
 
   useEffect(() => {
     setTimeout(() => {
@@ -45,11 +79,13 @@ const Todo: FC = () => {
     }
 
     const filterTodo = todo.filter((item) =>
-      item.task.toLowerCase().includes(searchTask.toLowerCase())
+      // item.task.toLowerCase().includes(searchTask.toLowerCase())
+      item.title.toLowerCase().includes(searchTask.toLowerCase())
     );
 
     setFilterTask(filterTodo);
     setTotal(filterTodo.length);
+    setCurrentPage(1);
   };
 
   // filter todo
@@ -93,9 +129,12 @@ const Todo: FC = () => {
   const addTodo = () => {
     const newId = uuidv4();
     const newTodoItem: TodoItems = {
-      id: newId,
-      task: newTodo,
+      // id: newId,
+      // task: newTodo,
       completed: false,
+      id: newId,
+      title: newTodo,
+      userId: newId,
     };
 
     if (newTodo === "") {
@@ -112,7 +151,7 @@ const Todo: FC = () => {
 
     let check = true;
     todo.map((item, index) => {
-      if (item.task === newTodoItem.task) {
+      if (item.title === newTodoItem.title) {
         check = false;
         return;
       }
@@ -145,9 +184,12 @@ const Todo: FC = () => {
   const enter = (e: KeyboardEvent): void => {
     const newId = uuidv4();
     const newTodoItem: TodoItems = {
-      id: newId,
-      task: newTodo,
+      // id: newId,
+      // task: newTodo,
       completed: false,
+      id: newId,
+      title: newTodo,
+      userId: newId,
     };
 
     if (e.key === "Enter") {
@@ -172,6 +214,7 @@ const Todo: FC = () => {
               (task) => task.id === idEdit
             );
             updatedTodos.task = newTodo;
+            updatedTodos.completed = false;
             return [...prevTasks];
           });
           setNewTodo("");
@@ -179,6 +222,8 @@ const Todo: FC = () => {
           toast.success("Sửa todo thành công!");
           setSearchItem("");
           setFilterTask([]);
+          setTotal(0);
+          setCurrentPage(1);
           saveTodo(todo);
         }
       } else {
@@ -196,7 +241,7 @@ const Todo: FC = () => {
 
         let check = true;
         todo.map((item, index) => {
-          if (item.task === newTodoItem.task) {
+          if (item.title === newTodoItem.title) {
             check = false;
             return;
           }
@@ -209,12 +254,16 @@ const Todo: FC = () => {
             setSearchItem("");
             setFilterTask([]);
             toast("Thêm todo thành công!");
+            setTotal(0);
+            setCurrentPage(1);
             saveTodo([...todo, newTodoItem]);
           } else {
             toast.error("Đã có task này !!!");
             setNewTodo("");
             setSearchItem("");
             setFilterTask([]);
+            setTotal(0);
+            setCurrentPage(1);
           }
         }
       }
@@ -243,6 +292,7 @@ const Todo: FC = () => {
       setTodo((prevTasks) => {
         const updatedTodos: any = prevTasks.find((task) => task.id === idEdit);
         updatedTodos.task = newTodo;
+        updatedTodos.completed = false;
         return [...prevTasks];
       });
     }
@@ -252,6 +302,8 @@ const Todo: FC = () => {
     toast.success("Sửa todo thành công!");
     setSearchItem("");
     setFilterTask([]);
+    setTotal(0);
+    setCurrentPage(1);
     saveTodo(todo);
   };
 
@@ -262,20 +314,24 @@ const Todo: FC = () => {
       }
       return todo;
     });
-    setTodo(updatedTodos);
-    saveTodo(updatedTodos);
     setSearchItem("");
     setFilterTask([]);
+    setTotal(0);
+    setCurrentPage(1);
+    setTodo(updatedTodos);
+    saveTodo(updatedTodos);
   };
 
   const deleteTodo = (id: string | number) => {
     const updatedTodos = todo.filter((todo) => todo.id !== id);
-    setTodo(updatedTodos);
     toast.info("Xóa todo thành công!");
     setNewTodo("");
     setEdit(false);
     setSearchItem("");
     setFilterTask([]);
+    setTotal(0);
+    setCurrentPage(1);
+    setTodo(updatedTodos);
     saveTodo(updatedTodos);
   };
 
@@ -304,7 +360,6 @@ const Todo: FC = () => {
             searchItem={searchItem}
             handleInputChange={handleInputChange}
             handleFilterTodo={handleFilterTodo}
-            defaultValue={defaultValue}
           />
           <TodoItem
             todo={todo}
@@ -313,7 +368,6 @@ const Todo: FC = () => {
             deleteTodo={deleteTodo}
             filterTask={filterTask}
             currentPage={currentPage}
-            postsPerPage={postsPerPage}
             paginate={paginate}
             total={total}
           />
