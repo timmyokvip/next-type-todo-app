@@ -29,7 +29,7 @@ const TodoItem = (props: Props) => {
   // Get current posts
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
-  const currentPosts = todo.slice(indexOfFirstPost, indexOfLastPost);
+  const currentPosts = todo?.slice(indexOfFirstPost, indexOfLastPost);
   const currentFilter = filterTask.slice(indexOfFirstPost, indexOfLastPost);
   const onShowSizeChange: PaginationProps["onShowSizeChange"] = (
     current,
@@ -37,6 +37,7 @@ const TodoItem = (props: Props) => {
   ) => {
     setPostsPerPage(pageSize);
   };
+
   return (
     <div>
       <ul
@@ -78,7 +79,7 @@ const TodoItem = (props: Props) => {
                 </li>
               );
             })
-          : currentPosts.map((item, index) => {
+          : currentPosts?.map((item, index) => {
               return (
                 <li
                   key={item.id}
@@ -113,13 +114,13 @@ const TodoItem = (props: Props) => {
               );
             })}
 
-        {todo.length === 0 && <li>Không có task !!!</li>}
+        {todo?.length === 0 && <li>Không có task !!!</li>}
       </ul>
       <div className="my-14 text-right mr-12">
         <Pagination
           defaultCurrent={1}
           current={currentPage}
-          total={total ? total : todo.length}
+          total={total ? total : todo?.length}
           onChange={(pageNumber) => paginate(pageNumber)}
           defaultPageSize={postsPerPage} // 1 trang có bao nhiêu todo
           onShowSizeChange={onShowSizeChange}

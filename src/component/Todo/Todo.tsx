@@ -5,8 +5,10 @@ import { v4 as uuidv4 } from "uuid";
 import { ToastContainer, toast } from "react-toastify";
 import HeaderTodo from "../HeaderTodo/HeaderTodo";
 import { Spin } from "antd";
-import { getAllTodos } from "@/services/apiService";
+import { fetchTodos } from "@/services/apiService";
 import useSWR from "swr";
+import { useDispatch } from "react-redux";
+import { addTodoAction } from "@/redux/action/todoAction";
 
 export interface TodoItems {
   // id: string;
@@ -16,8 +18,6 @@ export interface TodoItems {
   title: string;
   userId: number | string;
 }
-
-interface AxiosResponse {}
 
 const Todo: FC = () => {
   const [todo, setTodo] = useState<TodoItems[]>([]);
@@ -30,28 +30,19 @@ const Todo: FC = () => {
   const [currentPage, setCurrentPage] = useState<number>(1); // current page
   const [total, setTotal] = useState<number>(0);
 
-  const fetchTodos = async (url: string) => {
-    // return await fetch(url).then((res) => res.json());
-    const res: any = await getAllTodos();
-  };
+  const dispatch = useDispatch();
 
-  const { data, error, isLoading } = useSWR(
-    "https://jsonplaceholder.typicode.com/todos/",
-    fetchTodos,
-    {
-      revalidateIfStale: false,
-      revalidateOnFocus: false,
-      revalidateOnReconnect: false,
-    }
-  );
-
-  console.log("check data", todo);
+  const { data, error, isLoading }: any = useSWR("/todos/", fetchTodos, {
+    revalidateIfStale: false,
+    revalidateOnFocus: false,
+    revalidateOnReconnect: false,
+  });
 
   useEffect(() => {
     setTodo(data);
     // fetchTodos();
   }, []);
-
+  console.log(todo);
   // const fetchTodos = async () => {
   //   const res: any = await getAllTodos();
   //   if (res) {
@@ -90,7 +81,7 @@ const Todo: FC = () => {
 
   // filter todo
   const handleFilterTodo = (value: string) => {
-    // { value: "lucy", key: "lucy", label: "Lucy (101)" }
+    // console { value: "lucy", key: "lucy", label: "Lucy (101)" }
 
     if (value === "all") {
       setFilterTask(todo);
@@ -137,7 +128,7 @@ const Todo: FC = () => {
       userId: newId,
     };
 
-    if (newTodo === "") {
+    if (!newTodo) {
       toast.warning("Vui lòng nhập todo!");
       return;
     }
@@ -150,7 +141,7 @@ const Todo: FC = () => {
     }
 
     let check = true;
-    todo.map((item, index) => {
+    todo?.map((item, index) => {
       if (item.title === newTodoItem.title) {
         check = false;
         return;
@@ -159,12 +150,13 @@ const Todo: FC = () => {
 
     if (newTodo !== "") {
       if (check === true) {
-        setTodo([...todo, newTodoItem]);
+        setTodo([newTodoItem, ...todo]);
+        // dispatch(addTodoAction(newTodoItem));
         setNewTodo("");
         setSearchItem("");
         setFilterTask([]);
         toast("Thêm todo thành công!");
-        saveTodo([...todo, newTodoItem]);
+        saveTodo([newTodoItem, ...todo]);
         setTotal(0);
         setCurrentPage(1);
         if (inputRef.current) {
@@ -194,7 +186,7 @@ const Todo: FC = () => {
 
     if (e.key === "Enter") {
       if (edit === true) {
-        if (newTodo === "") {
+        if (!newTodo) {
           toast.warning("Không được để trống!");
           setEdit(false);
           return;
@@ -213,7 +205,7 @@ const Todo: FC = () => {
             const updatedTodos: any = prevTasks.find(
               (task) => task.id === idEdit
             );
-            updatedTodos.task = newTodo;
+            updatedTodos.title = newTodo;
             updatedTodos.completed = false;
             return [...prevTasks];
           });
@@ -223,7 +215,7 @@ const Todo: FC = () => {
           setSearchItem("");
           setFilterTask([]);
           setTotal(0);
-          setCurrentPage(1);
+          setCurrentPage(currentPage);
           saveTodo(todo);
         }
       } else {
@@ -249,14 +241,14 @@ const Todo: FC = () => {
 
         if (newTodo !== "") {
           if (check === true) {
-            setTodo([...todo, newTodoItem]);
+            setTodo([newTodoItem, ...todo]);
             setNewTodo("");
             setSearchItem("");
             setFilterTask([]);
             toast("Thêm todo thành công!");
             setTotal(0);
             setCurrentPage(1);
-            saveTodo([...todo, newTodoItem]);
+            saveTodo([newTodoItem, ...todo]);
           } else {
             toast.error("Đã có task này !!!");
             setNewTodo("");
@@ -291,20 +283,19 @@ const Todo: FC = () => {
     if (idEdit) {
       setTodo((prevTasks) => {
         const updatedTodos: any = prevTasks.find((task) => task.id === idEdit);
-        updatedTodos.task = newTodo;
+        updatedTodos.title = newTodo;
         updatedTodos.completed = false;
         return [...prevTasks];
       });
+      setNewTodo("");
+      setEdit(false);
+      toast.success("Sửa todo thành công!");
+      setSearchItem("");
+      setFilterTask([]);
+      setTotal(0);
+      setCurrentPage(currentPage);
+      saveTodo(todo);
     }
-
-    setNewTodo("");
-    setEdit(false);
-    toast.success("Sửa todo thành công!");
-    setSearchItem("");
-    setFilterTask([]);
-    setTotal(0);
-    setCurrentPage(1);
-    saveTodo(todo);
   };
 
   const doneTodo = (id: string | number) => {
@@ -317,7 +308,7 @@ const Todo: FC = () => {
     setSearchItem("");
     setFilterTask([]);
     setTotal(0);
-    setCurrentPage(1);
+    setCurrentPage(currentPage);
     setTodo(updatedTodos);
     saveTodo(updatedTodos);
   };
@@ -329,9 +320,9 @@ const Todo: FC = () => {
     setEdit(false);
     setSearchItem("");
     setFilterTask([]);
-    setTotal(0);
-    setCurrentPage(1);
     setTodo(updatedTodos);
+    setTotal(0);
+    setCurrentPage(currentPage);
     saveTodo(updatedTodos);
   };
 
@@ -348,8 +339,6 @@ const Todo: FC = () => {
       ) : (
         <div>
           <HeaderTodo
-            setTodo={setTodo}
-            todo={todo}
             newTodo={newTodo}
             setNewTodo={setNewTodo}
             edit={edit}

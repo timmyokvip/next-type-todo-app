@@ -3,6 +3,9 @@ import React, { useState, KeyboardEvent } from "react";
 import { Select, Switch } from "antd";
 import Link from "next/link";
 import { TodoItems } from "../Todo/Todo";
+import { useDispatch, useSelector } from "react-redux";
+import { addTodoAction } from "@/redux/action/todoAction";
+import { RootState } from "@/redux/store";
 
 interface Props {
   newTodo: string;
@@ -14,8 +17,6 @@ interface Props {
   inputRef: HTMLInputElement | null | any;
   searchItem: string;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  setTodo: React.Dispatch<React.SetStateAction<TodoItems[]>>;
-  todo: TodoItems[];
   handleFilterTodo: (value: string) => void;
 }
 
@@ -23,17 +24,28 @@ const HeaderTodo = (props: Props) => {
   const {
     newTodo,
     setNewTodo,
-    addTodo,
-    enter,
     edit,
+    addTodo,
     updateTodo,
+    enter,
     inputRef,
     searchItem,
     handleInputChange,
     handleFilterTodo,
   } = props;
   const [isTheme, setIsTheme] = useState<boolean>(true);
+  const dispatch = useDispatch();
+  const todoItem: TodoItems = {
+    id: "",
+    title: "",
+    completed: false,
+    userId: "",
+  };
+  const getTodoAction = useSelector(
+    (state: RootState) => state.todoAction.arrTodo
+  );
 
+  console.log(getTodoAction, "check get todo 1");
   const onChange = (checked: boolean) => {
     // console.log(`switch to ${checked}`);
     setIsTheme(!isTheme);
@@ -75,7 +87,13 @@ const HeaderTodo = (props: Props) => {
           ref={inputRef}
         />
         {edit === false ? (
-          <button className="addBtn" onClick={() => addTodo()}>
+          <button
+            className="addBtn"
+            onClick={() => {
+              // dispatch(addTodoAction(todoItem));
+              addTodo();
+            }}
+          >
             Add
           </button>
         ) : (
