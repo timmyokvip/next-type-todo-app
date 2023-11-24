@@ -2,10 +2,7 @@
 import React, { useState, KeyboardEvent } from "react";
 import { Select, Switch } from "antd";
 import Link from "next/link";
-import { TodoItems } from "../Todo/Todo";
-import { useDispatch, useSelector } from "react-redux";
-import { addTodoAction } from "@/redux/action/todoAction";
-import { RootState } from "@/redux/store";
+import NewTodo from "../NewTodo";
 
 interface Props {
   newTodo: string;
@@ -34,18 +31,7 @@ const HeaderTodo = (props: Props) => {
     handleFilterTodo,
   } = props;
   const [isTheme, setIsTheme] = useState<boolean>(true);
-  const dispatch = useDispatch();
-  const todoItem: TodoItems = {
-    id: "",
-    title: "",
-    completed: false,
-    userId: "",
-  };
-  const getTodoAction = useSelector(
-    (state: RootState) => state.todoAction.arrTodo
-  );
 
-  console.log(getTodoAction, "check get todo 1");
   const onChange = (checked: boolean) => {
     // console.log(`switch to ${checked}`);
     setIsTheme(!isTheme);
@@ -76,34 +62,8 @@ const HeaderTodo = (props: Props) => {
       </nav>
       <div id="myDIV" className="header">
         <h2 className="uppercase">My To Do List </h2>
-        <input
-          className="text-black outline-none"
-          type="text"
-          id="myInput"
-          placeholder={edit === true ? "Update to do..." : "Add to do..."}
-          value={newTodo}
-          onChange={(e) => setNewTodo(e.target.value)}
-          onKeyUp={enter}
-          ref={inputRef}
-        />
-        {edit === false ? (
-          <button
-            className="addBtn"
-            onClick={() => {
-              // dispatch(addTodoAction(todoItem));
-              addTodo();
-            }}
-          >
-            Add
-          </button>
-        ) : (
-          <button
-            className="editBtn bg-yellow-500 text-white"
-            onClick={() => updateTodo()}
-          >
-            Update
-          </button>
-        )}
+
+        <NewTodo />
       </div>
       <div className="p-12 pt-0 flex  gap-5">
         <div className="w-[55%] ">

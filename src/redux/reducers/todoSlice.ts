@@ -7,20 +7,19 @@ interface TodoState {
 
 const initialState: TodoState = { arrTodo: [] };
 
-const todoAction = createSlice({
-  name: "todoAction",
+const todoSlice = createSlice({
+  name: "todoSlice",
   initialState,
   reducers: {
     addTodoAction: (state, action: PayloadAction<TodoItems>) => {
       state.arrTodo.push(action.payload);
     },
-    editTodoAction: (state, action) => {
-      state.arrTodo;
+    getTodoActionLocal: (state, action: PayloadAction<TodoItems[]>) => {
+      state.arrTodo = action.payload;
     },
-    deleteTodoAction: () => {},
   },
 });
 
-export const { addTodoAction, editTodoAction } = todoAction.actions;
+export const { addTodoAction, getTodoActionLocal } = todoSlice.actions;
 
-export default todoAction.reducer;
+export default todoSlice.reducer;

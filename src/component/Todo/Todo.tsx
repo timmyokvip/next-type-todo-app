@@ -7,8 +7,10 @@ import HeaderTodo from "../HeaderTodo/HeaderTodo";
 import { Spin } from "antd";
 import { fetchTodos } from "@/services/apiService";
 import useSWR from "swr";
-import { useDispatch } from "react-redux";
-import { addTodoAction } from "@/redux/action/todoAction";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { getLocal } from "@/utils/localStorage";
+import { getTodoActionLocal } from "@/redux/reducers/todoSlice";
 
 export interface TodoItems {
   // id: string;
@@ -29,8 +31,6 @@ const Todo: FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState<number>(1); // current page
   const [total, setTotal] = useState<number>(0);
-
-  const dispatch = useDispatch();
 
   const { data, error, isLoading }: any = useSWR("/todos/", fetchTodos, {
     revalidateIfStale: false,
@@ -151,7 +151,6 @@ const Todo: FC = () => {
     if (newTodo !== "") {
       if (check === true) {
         setTodo([newTodoItem, ...todo]);
-        // dispatch(addTodoAction(newTodoItem));
         setNewTodo("");
         setSearchItem("");
         setFilterTask([]);
@@ -330,6 +329,19 @@ const Todo: FC = () => {
     setCurrentPage(pageNumber);
   };
 
+  const dispatch = useDispatch();
+
+  const todoItem = useSelector((state: RootState) => state.todoSlice.arrTodo);
+  useEffect(() => {
+    const data = getLocal("todo-list");
+    if (data !== null) {
+      const action = getTodoActionLocal(data);
+      dispatch(action);
+    } else {
+      console.log("ko có data ở local");
+    }
+  });
+
   return (
     <>
       {loading ? (
@@ -352,6 +364,7 @@ const Todo: FC = () => {
           />
           <TodoItem
             todo={todo}
+            todoItem={todoItem}
             editTodo={editTodo}
             doneTodo={doneTodo}
             deleteTodo={deleteTodo}
